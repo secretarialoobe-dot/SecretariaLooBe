@@ -1,0 +1,10 @@
+anthropic==0.94.0
+openai==2.31.0
+python-telegram-bot==22.7
+gTTS==2.5.4
+SpeechRecognition==3.16.0
+duckduckgo_search==8.1.1
+requests==2.33.1
+httpx==0.28.1
+pydantic==2.12.5
+tqdm==4.67.3
