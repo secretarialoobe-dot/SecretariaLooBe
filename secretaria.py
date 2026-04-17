@@ -22,6 +22,7 @@ def consultar_pedidos(usuario_id):
         zona_esp = pytz.timezone("Europe/Madrid")
         ahora = datetime.now(zona_esp)
         hoy = ahora.strftime("%Y-%m-%d")
+        hoy_display = ahora.strftime("%d/%m/%Y")
         ultima = ultima_consulta.get(usuario_id)
 
         url_dia = f"{PRESTA_URL}/api/orders?ws_key={PRESTA_KEY}&output_format=JSON&limit=1000&filter[date_add]=[{hoy}%2000:00:00,{hoy}%2023:59:59]&date=1"
@@ -45,30 +46,36 @@ def consultar_pedidos(usuario_id):
                 pedidos_nuevos.append((orden, fecha_str))
 
         ultima_consulta[usuario_id] = ahora
-        resumen_dia = f"Total hoy ({hoy}): {len(pedidos_dia)} pedidos — {total_dia:.2f}EUR"
+
+        resumen = f"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\U0001f4ca RESUMEN DEL D\u00cdA\n\U0001f6cd\ufe0f Total pedidos: {len(pedidos_dia)}\n\U0001f4b5 Total facturado: {total_dia:.2f}\u20ac"
 
         if not pedidos_nuevos:
-            return [f"No hay pedidos nuevos desde la ultima consulta.\n\n{resumen_dia}"]
+            return [f"\U0001f5d3\ufe0f Hoy {hoy_display} \u2014 {len(pedidos_dia)} pedidos\n\n\u2705 No hay pedidos nuevos desde tu ultima consulta.{resumen}"]
 
         mensajes = []
-        bloque = f"{len(pedidos_nuevos)} pedidos nuevos:\n\n"
+        bloque = f"\U0001f5d3\ufe0f Hoy {hoy_display} \u2014 {len(pedidos_dia)} pedidos\n\n"
 
         for orden, fecha_str in pedidos_nuevos:
             importe = float(orden.get("total_paid", 0))
-            linea = f"Pedido #{orden['id']} - {fecha_str[:10]}\n"
-            linea += f"  Importe: {importe:.2f}EUR\n"
+            try:
+                hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S").strftime("%H:%Mh")
+            except:
+                hora = ""
+            linea = f"\U0001f4e6 Pedido #{orden['id']}\n"
+            linea += f"   \U0001f4c5 {hora}\n"
+            linea += f"   \U0001f4b0 {importe:.2f}\u20ac\n"
             articulos = orden.get("associations", {}).get("order_rows", [])
             for a in articulos:
                 nombre = a.get("product_name", "")[:40]
                 cantidad = a.get("product_quantity", 1)
-                linea += f"  {cantidad}x {nombre}\n"
+                linea += f"   \U0001f3f7\ufe0f {cantidad}x {nombre}\n"
             linea += "\n"
             if len(bloque) + len(linea) > 3800:
                 mensajes.append(bloque)
                 bloque = ""
             bloque += linea
 
-        bloque += resumen_dia
+        bloque += resumen
         mensajes.append(bloque)
         return mensajes
 
