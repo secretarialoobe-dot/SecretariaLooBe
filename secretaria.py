@@ -53,7 +53,7 @@ def consultar_pedidos(usuario_id):
             return [f"\U0001f5d3\ufe0f Hoy {hoy_display} \u2014 {len(pedidos_dia)} pedidos\n\n\u2705 No hay pedidos nuevos desde tu ultima consulta.{resumen}"]
 
         mensajes = []
-        bloque = f"\U0001f5d3\ufe0f Hoy {hoy_display} \u2014 {len(pedidos_dia)} pedidos\n\n"
+        bloque = f"\U0001f5d3\ufe0f Hoy {hoy_display} \u2014 {len(pedidos_nuevos)} pedidos nuevos desde tu ultima consulta\n\n"
 
         for orden, fecha_str in pedidos_nuevos:
             importe = float(orden.get("total_paid", 0))
